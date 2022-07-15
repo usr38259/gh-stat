@@ -9,7 +9,7 @@ class ghreq {
 		try {
 			String token = Files.readAllLines (Paths.get ("ghtoken.txt"), Charset.forName ("US-ASCII")).get (0);
 			HttpURLConnection conn = (HttpURLConnection)
-				new URL("https://api.github.com/repos/usr38259/specl80-asm/traffic/clones").openConnection();
+				new URL("https://api.github.com/repos/usr38259/gh-stat/traffic/clones").openConnection();
 			conn.setRequestProperty ("Accept", "application/vnd.github+json");
 			conn.setRequestProperty ("Authorization", "token " +
 				token);
