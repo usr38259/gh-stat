@@ -27,6 +27,8 @@ function GHRequest (req, arr)
 {
 	var lst = new java.util.Vector ()
 	lst.add ("curl"); lst.add ("-s"); lst.add ("-D"); lst.add ("-")
+	lst.add ("-H"); lst.add ('"Accept: application/vnd.github+json"')
+	lst.add ("-H"); lst.add ('"Authorization: token ' + token + '"')
 	lst.add (GHApiURL + repo + req)
 	var pbld = new java.lang.ProcessBuilder (lst)
 	var benv = pbld.environment ()
@@ -37,7 +39,7 @@ function GHRequest (req, arr)
 	var p = pbld.start ()
 	p.waitFor ()
 	if (p.exitValue () > 0) {
-		print ("\nError: Bad curl exit value")
+		print ("\nError: Bad curl exit value:", p.exitValue ())
 		java.lang.System.exit (1)
 	}
 	var brd = new java.io.BufferedReader (new java.io.InputStreamReader (p.getInputStream ()))
