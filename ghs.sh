@@ -30,9 +30,13 @@ infot=views
 else
 case "$4" in
 1) infot=views;;
+v) infot=views;;
 2) infot=clones;;
+c) infot=clones;;
 3) infot=popular/paths;;
+p) infot=popular/paths;;
 4) infot=popular/referrers;;
+r) infot=popular/referrers;;
 *) infot=$4;;
 esac
 fi
@@ -62,4 +66,4 @@ echo ghs.sh: error: token file \`$2\` is not exist or cannot be accessed
 exit 10
 fi
 
-curl -H "Accept: application/vnd.github+json" -H "Authorization: token `cat $2`" https://api.github.com/repos/$1/$3/traffic/$infot
+curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token `cat $2`" https://api.github.com/repos/$1/$3/traffic/$infot
