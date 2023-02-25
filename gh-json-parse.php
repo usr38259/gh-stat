@@ -17,6 +17,7 @@ unset ($string);
 
 $json = json_decode ($json_string, true);
 $jsonle = json_last_error ();
+unset ($json_string);
 
 if ($jsonle != JSON_ERROR_NONE || $json === false) {
 	fwrite (STDERR, "gh-json-parse.php: error: JSON decode error: " .
@@ -53,14 +54,14 @@ else {
 
 switch ($type) {
 case 1:
-	printf ("%3d views, %d uniques\n", $json ['count'], $json ['uniques']);
+	printf (" %3d views, %d uniques\n", $json ['count'], $json ['uniques']);
 	foreach ($json ['views'] as $val) {
 		echo '  ', substr ($val ['timestamp'], 0, 10), "\t";
 		printf ("%5d\t%5d\n", $val ['count'], $val ['uniques']);
 	}
 	break;
 case 2:
-	printf ("%3d clones, %d uniques\n", $json ['count'], $json ['uniques']);
+	printf (" %3d clones, %d uniques\n", $json ['count'], $json ['uniques']);
 	foreach ($json ['clones'] as $val) {
 		echo '  ', substr ($val ['timestamp'], 0, 10), "\t";
 		printf ("%5d\t%5d\n", $val ['count'], $val ['uniques']);
