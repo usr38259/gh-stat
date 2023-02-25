@@ -22,3 +22,8 @@
 
 ### Запуск
 `cat ghs_cmd.js | dalvikvm -cp rhino1_7R2-dex.jar org.mozilla.javascript.tools.shell.Main`
+
+### Использование ghs.sh
+`ghs.sh` - упрощённый shell-скрипт получения статистики с возможностью парсинга JSON-документа (требуется наличие `curl` и `php`).  
+Использование:  
+`./ghs.sh user token.txt repo [info] | php gh-json-parse.php`
