@@ -2,13 +2,15 @@
 
 define ('MAX_JSON_STRING_LENGTH', 1024 * 1024);
 
+$script_basename = basename ($argv [0]);
+
 $json_string = '';
 while (!feof (STDIN)) {
 	$string = fread (STDIN, 128 * 1024);
 	if ($string === false) break;
 	$json_string .= $string;
 	if (strlen ($json_string) > MAX_JSON_STRING_LENGTH) {
-		fwrite (STDERR, 'gh-json-parse.php: error: input is too long, exceeds '
+		fwrite (STDERR, "$script_basename: error: input is too long, exceeds "
 			. MAX_JSON_STRING_LENGTH / 1024 . " kbytes\n");
 		exit (1);
 	}
@@ -20,7 +22,7 @@ $jsonle = json_last_error ();
 unset ($json_string);
 
 if ($jsonle != JSON_ERROR_NONE || $json === false) {
-	fwrite (STDERR, "gh-json-parse.php: error: JSON decode error: " .
+	fwrite (STDERR, "$script_basename: error: JSON decode: " .
 		json_error_string ($jsonle) . "\n");
 	exit (1);
 }
@@ -53,35 +55,31 @@ else {
 }
 
 switch ($type) {
-case 1:
-	printf (" %3d views, %d uniques\n", $json ['count'], $json ['uniques']);
+case 1:	printf (" %3d views, %d uniques\n", $json ['count'], $json ['uniques']);
 	foreach ($json ['views'] as $val) {
 		echo '  ', substr ($val ['timestamp'], 0, 10), "\t";
 		printf ("%5d\t%5d\n", $val ['count'], $val ['uniques']);
 	}
 	break;
-case 2:
-	printf (" %3d clones, %d uniques\n", $json ['count'], $json ['uniques']);
+case 2:	printf (" %3d clones, %d uniques\n", $json ['count'], $json ['uniques']);
 	foreach ($json ['clones'] as $val) {
 		echo '  ', substr ($val ['timestamp'], 0, 10), "\t";
 		printf ("%5d\t%5d\n", $val ['count'], $val ['uniques']);
 	}
 	break;
-case 3:
-	echo "Popular paths:\n";
+case 3:	echo "Popular paths:\n";
 	foreach ($json as $page) {
 		printf ('%5d %5d  "', $page ['count'], $page ['uniques']);
 		echo $page ['title'], "\"\n\t\t", $page ['path'], "\n";
 	}
 	break;
-case 4:
-	echo "Popular referrers:\n";
+case 4:	echo "Popular referrers:\n";
 	foreach ($json as $ref) {
 		printf ('%5d %5d  ', $ref ['count'], $ref ['uniques']);
 		echo $ref ['referrer'], "\n";
 	}
 case 0:	break;
-default: fwrite (STDERR, "gh-json-parse.php: error: unknown JSON format\n");
+default: fwrite (STDERR, "$script_basename: error: unknown JSON format\n");
 	exit (1);
 }
 
