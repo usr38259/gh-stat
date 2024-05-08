@@ -1,8 +1,8 @@
 <?php
 
-define ('MAX_JSON_STRING_LENGTH', 1024 * 1024);
+define('MAX_JSON_STRING_LENGTH', 1024*1024);
 
-$script_basename = basename ($argv [0]);
+$script_basename=basename($argv[0]);
 
 $json_string = '';
 while (!feof (STDIN)) {
@@ -17,12 +17,13 @@ while (!feof (STDIN)) {
 }
 unset ($string);
 
+$json_string = trim ($json_string);
+if (strlen ($json_string) == 0) exit (0);
 $json = json_decode ($json_string, true);
 $jsonle = json_last_error ();
-unset ($json_string);
 
 if ($jsonle != JSON_ERROR_NONE || $json === false) {
-	fwrite (STDERR, "$script_basename: error: JSON decode: " .
+	fwrite (STDERR, "$script_basename: error: JSON decode error: " .
 		json_error_string ($jsonle) . "\n");
 	exit (1);
 }
@@ -46,34 +47,45 @@ $type = -1;
 if (count ($json) == 0) $type = 0;
 elseif (array_key_exists ('views', $json)) $type = 1;
 elseif (array_key_exists ('clones', $json)) $type = 2;
-else {
+elseif (array_key_exists ('message', $json)) {
+    echo "Message: ${json['message']}\n";
+    if (array_key_exists ('documentation_url', $json))
+	echo "Documentation URL: ${json['documentation_url']}\n";
+    if (count ($json) > 2) echo $json_string, "\n";
+    exit(2);
+} else {
 	$el = $json [0];
 	if ($el !== null && $el !== false) {
 		if (array_key_exists ('path', $el)) $type = 3;
 		elseif (array_key_exists ('referrer', $el)) $type = 4;
 	}
 }
+unset($json_string);
 
 switch ($type) {
-case 1:	printf (" %3d views, %d uniques\n", $json ['count'], $json ['uniques']);
+case 1:
+	printf (" %3d views, %d uniques\n", $json ['count'], $json ['uniques']);
 	foreach ($json ['views'] as $val) {
 		echo '  ', substr ($val ['timestamp'], 0, 10), "\t";
 		printf ("%5d\t%5d\n", $val ['count'], $val ['uniques']);
 	}
 	break;
-case 2:	printf (" %3d clones, %d uniques\n", $json ['count'], $json ['uniques']);
+case 2:
+	printf (" %3d clones, %d uniques\n", $json ['count'], $json ['uniques']);
 	foreach ($json ['clones'] as $val) {
 		echo '  ', substr ($val ['timestamp'], 0, 10), "\t";
 		printf ("%5d\t%5d\n", $val ['count'], $val ['uniques']);
 	}
 	break;
-case 3:	echo "Popular paths:\n";
+case 3:
+	echo "Popular paths:\n";
 	foreach ($json as $page) {
 		printf ('%5d %5d  "', $page ['count'], $page ['uniques']);
 		echo $page ['title'], "\"\n\t\t", $page ['path'], "\n";
 	}
 	break;
-case 4:	echo "Popular referrers:\n";
+case 4:
+	echo "Popular referrers:\n";
 	foreach ($json as $ref) {
 		printf ('%5d %5d  ', $ref ['count'], $ref ['uniques']);
 		echo $ref ['referrer'], "\n";
