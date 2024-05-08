@@ -66,4 +66,5 @@ echo ghs.sh: error: token file \`$2\` is not exist or cannot be accessed
 exit 10
 fi
 
-curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token `cat $2`" https://api.github.com/repos/$1/$3/traffic/$infot
+curl -sS --connect-timeout 15 -H "Accept: application/vnd.github+json" -H "Authorization: token `cat $2`" https://api.github.com/repos/$1/$3/traffic/$infot
+exit $?
