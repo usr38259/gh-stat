@@ -1,9 +1,12 @@
 #!/bin/bash
 
+script_basename=`basename "$0"`
+conn_timeout=15
+
 function print_usage
 {
 echo Usage:
-echo "  ghs.sh user token-file repo [info-type]"
+echo "  $script_basename user < token | @token-file > repo [info-type]"
 echo Where info-type can be a digit, one of:
 echo -e "\t1 - views (default); 2 - clones;"
 echo -e "\t3 - popular paths; 4 - referrers"
@@ -19,7 +22,7 @@ fi
 
 if [ -z "$2" -o -z "$3" ]
 then
-echo ghs.sh: error: required arguments are not set
+echo $script_basename: error: required arguments are not set
 print_usage
 exit 255
 fi
@@ -41,16 +44,19 @@ r) infot=popular/referrers;;
 esac
 fi
 
-if [ -r "$2" ]
+if [ ${2:0:1} = @ ]
+then fname="${2:1}"
+
+if [ -r "$fname" ]
 then
-  if [ ! -s "$2" ]
+  if [ ! -s "$fname" ]
   then
-    echo ghs.sh: warning: token file \`$2\` is empty
+    echo $script_basename: warning: token file \`$2\` is empty
   fi
   size="`stat -c%s $2 2> /dev/null`"
   if [ $? -ne 0 ]
   then
-    size=`wc -c "$2"`
+    size=`wc -c "$fname"`
     if [ $? -eq 0 ]
     then
       size=`echo "$size" | awk '{print $1}'`
@@ -58,13 +64,17 @@ then
   fi
   if [ $? -eq 0 ] && [ "$size" -gt 8192 ]
   then
-    echo ghs.sh: error: token length is too big in file \`$2\` \($size\)
+    echo $script_basename: error: token length is too big in file \`$fname\` \($size\)
     exit 10
   fi
 else
-echo ghs.sh: error: token file \`$2\` is not exist or cannot be accessed
+echo $script_basename: error: token file \`$fname\` is not exist or cannot be accessed
 exit 10
 fi
+token_subst=`cat "$fname"`
 
-curl -sS --connect-timeout 15 -H "Accept: application/vnd.github+json" -H "Authorization: token `cat $2`" https://api.github.com/repos/$1/$3/traffic/$infot
+else token_subst="$2"
+fi
+
+curl -sS --connect-timeout $conn_timeout -H "Accept: application/vnd.github+json" -H "Authorization: token $token_subst" https://api.github.com/repos/$1/$3/traffic/$infot
 exit $?
