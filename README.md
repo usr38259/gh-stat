@@ -26,4 +26,4 @@
 ### Использование ghs.sh
 `ghs.sh` - упрощённый shell-скрипт получения статистики с возможностью парсинга JSON-документа (требуется наличие `curl` и `php`).  
 Использование:  
-`./ghs.sh user token.txt repo [info] | php gh-json-parse.php`
+`./ghs.sh user < token | @token-file.txt > repo [info] | php gh-json-parse.php`
